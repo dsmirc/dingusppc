@@ -27,7 +27,7 @@ jobs:
         cd vcpkg
         .\bootstrap-vcpkg.bat
         .\vcpkg integrate install
-        .\vcpkg install sdl2:x64-windows
+        .\vcpkg install 
 
     - name: init_submodules
       run: git submodule update --init --recursive

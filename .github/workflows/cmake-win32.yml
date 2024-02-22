@@ -28,12 +28,12 @@ jobs:
 
     - name: init_submodules
       run: git submodule update --init --recursive
-
+    - uses: ilammy/msvc-dev-cmd@v1
     - name: Build
       run: |
         mkdir build
         cd build
-        cmake -B .. -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake 
+        cmake -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake .. 
         cmake --build . --config Release 
 
     - name: Upload artifact

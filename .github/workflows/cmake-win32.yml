@@ -34,7 +34,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows .. 
+        cmake -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_CXX_FLAGS="/EHsc" .. 
         cmake --build . --config Release 
 
     - name: Upload artifact

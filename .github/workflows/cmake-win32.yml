@@ -1,0 +1,48 @@
+name: CMakeWIN32
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup msbuild
+      if: inputs.configuration != 'CMake'
+      uses: microsoft/setup-msbuild@v1
+    - name: setup vcpkg
+      uses: friendlyanon/setup-vcpkg@v1
+      with: 
+        committish: 13bde2ff13192e1b2fdd37bd9b475c7665ae6ae5
+        triplet: x64-windows  # Specify the VCPKG target triplet here
+    - name: install deps
+      run: |
+         .\vcpkg\vcpkg integrate install
+         .\vcpkg\vcpkg install
+
+    - name: init_submodules
+      run: git submodule update --init --recursive
+
+
+    - name: Build
+      # Build your program with the given configuration
+      run: |
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=D:/a/dingusppc/dingusppc/vcpkg/scripts/buildsystems/vcpkg.cmake  ..
+        cmake --build .. --config Release 
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DingusPPC-WIN32-MSVC
+        path: ${{github.workspace}}/build

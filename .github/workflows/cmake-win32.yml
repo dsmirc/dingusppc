@@ -33,7 +33,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -S -B -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        cmake -S .. -B -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake 
         cmake --build . --config Release 
 
     - name: Upload artifact

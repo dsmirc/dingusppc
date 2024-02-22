@@ -23,11 +23,8 @@ jobs:
 
     - name: Setup VCPKG
       run: |
-        git clone https://github.com/microsoft/vcpkg.git
-        cd vcpkg
-        .\bootstrap-vcpkg.bat
-        .\vcpkg integrate install
-        .\vcpkg install 
+         vcpkg integrate install
+         vcpkg install 
 
     - name: init_submodules
       run: git submodule update --init --recursive

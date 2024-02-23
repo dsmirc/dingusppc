@@ -31,9 +31,13 @@ jobs:
       run: git submodule update --init --recursive
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Build
+      if: inputs.configuration == 'CMake'
+      id: cmake
+      shell: cmd
       run: |
         mkdir build
         cd build
+        call "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
         cmake -DCMAKE_BUILD_TYPE=Release -DPPC_BUILD_PPC_TESTS=True -DCMAKE_SYSTEM_NAME="Generic" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_CXX_FLAGS="/EHsc" .. 
         cmake --build . --config Release 
 

@@ -31,7 +31,6 @@ jobs:
       run: git submodule update --init --recursive
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Build
-      if: inputs.configuration == 'CMake'
       id: cmake
       shell: cmd
       run: |

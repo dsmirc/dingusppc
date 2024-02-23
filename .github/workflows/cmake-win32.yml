@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Setup msbuild
-      if: inputs.configuration != 'CMake'
+      if: github.event.inputs.configuration != 'CMake'  # Correctly checking for the configuration
       uses: microsoft/setup-msbuild@v1
 
     - name: Setup VCPKG

@@ -39,7 +39,7 @@ inline void power_setsoov(uint32_t a, uint32_t b, uint32_t d) {
 /** mask generator for rotate and shift instructions (§ 4.2.1.4 PowerpC PEM) */
 static inline uint32_t power_rot_mask(unsigned rot_mb, unsigned rot_me) {
     uint32_t m1 = 0xFFFFFFFFUL >> rot_mb;
-    uint32_t m2 = (uint32_t)(0xFFFFFFFFUL << (31 - rot_me));
+    uint32_t m2 = uint32_t(0xFFFFFFFFUL << (31 - rot_me));
     return ((rot_mb <= rot_me) ? m2 & m1 : m1 | m2);
 }
 
@@ -86,7 +86,7 @@ void dppc_interpreter::power_div() {
         ppc_state.spr[SPR::MQ] = 0;
         ppc_result_d = 0x80000000UL; // -2^31 aka INT32_MIN
     } else {
-        ppc_result_d = (uint32_t)(dividend / divisor);
+        ppc_result_d = uint32_t(dividend / divisor);
         ppc_state.spr[SPR::MQ] = dividend % divisor;
     }
 
@@ -113,7 +113,7 @@ void dppc_interpreter::power_divs() {
 
 void dppc_interpreter::power_doz() {
     ppc_grab_regsdab();
-    ppc_result_d = ((int32_t)ppc_result_a >= (int32_t)ppc_result_b) ? 0 :
+    ppc_result_d = (int32_t(ppc_result_a) >= int32_t(ppc_result_b)) ? 0 :
                     ppc_result_b - ppc_result_a;
 
     if (rc_flag)
@@ -136,30 +136,28 @@ void dppc_interpreter::power_dozi() {
 
 void dppc_interpreter::power_lscbx() {
     ppc_grab_regsdab();
-    ppc_effective_address = (reg_a == 0) ? ppc_result_b : ppc_result_a + ppc_result_b;
-    //ppc_result_d          = 0xFFFFFFFF;
+    ppc_effective_address = reg_a ? ppc_result_a + ppc_result_b : ppc_result_b;
 
-    uint8_t return_value   = 0;
-    uint32_t bytes_to_load = (ppc_state.spr[SPR::XER] & 0x7f);
+    uint8_t  return_value  = 0;
+    uint32_t bytes_to_load = (ppc_state.spr[SPR::XER] & 0x7F);
     uint32_t bytes_copied  = 0;
-    uint8_t matching_byte  = (uint8_t)((ppc_state.spr[SPR::XER] & 0xFF00) >> 8);
+    uint8_t  matching_byte = (uint8_t)(ppc_state.spr[SPR::XER] >> 8);
 
     // for storing each byte
-    uint32_t bitmask     = 0xFF000000;
-    uint8_t shift_amount = 24;
+    uint32_t bitmask      = 0xFF000000;
+    uint8_t  shift_amount = 24;
 
     while (bytes_to_load > 0) {
         return_value = mmu_read_vmem<uint8_t>(ppc_effective_address);
-        // return_value = mem_grab_byte(ppc_effective_address);
-        ppc_result_d = (ppc_result_d & ~(bitmask)) | (return_value << shift_amount);
-        ppc_store_result_regd();
-        if (bitmask == 0x000000FF) {
+
+        ppc_result_d = (ppc_result_d & ~bitmask) | (return_value << shift_amount);
+        if (!shift_amount) {
+            if (reg_d != reg_a && reg_d != reg_b)
+                ppc_store_result_regd();
             reg_d        = (reg_d + 1) & 31;
-            //ppc_result_d = 0xFFFFFFFF;
             bitmask      = 0xFF000000;
             shift_amount = 24;
-        }
-        else {
+        } else {
             bitmask >>= 8;
             shift_amount -= 8;
         }
@@ -172,8 +170,11 @@ void dppc_interpreter::power_lscbx() {
             break;
     }
 
-    ppc_state.spr[SPR::XER] = (ppc_state.spr[SPR::XER] & 0xFFFFFF80) | bytes_copied;
+    // store partiallly loaded register if any
+    if (shift_amount != 24 && reg_d != reg_a && reg_d != reg_b)
+        ppc_store_result_regd();
 
+    ppc_state.spr[SPR::XER] = (ppc_state.spr[SPR::XER] & ~0x7F) | bytes_copied;
 
     if (rc_flag)
         ppc_changecrf0(ppc_result_d);
